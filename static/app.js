@@ -8,27 +8,42 @@ async function fetchTasks() {
 
     tasks.forEach(task => {
         const li = document.createElement('li');
-        li.innerHTML = `
-            <span>${task.title}</span>
-            <button class="delete-btn" onclick="deleteTask(${task.id})">Delete</button>
-        `;
+        const taskTitle = document.createElement('span');
+        const taskPriority = document.createElement('span');
+        const deleteButton = document.createElement('button');
+
+        taskTitle.textContent = task.title;
+        taskPriority.className = 'task-priority';
+        taskPriority.textContent = task.priority || 'Medium';
+        deleteButton.className = 'delete-btn';
+        deleteButton.textContent = 'Delete';
+        deleteButton.addEventListener('click', () => deleteTask(task.id));
+
+        li.appendChild(taskTitle);
+        li.appendChild(taskPriority);
+        li.appendChild(deleteButton);
         taskList.appendChild(li);
     });
 }
 
 async function addTask() {
     const titleInput = document.getElementById('task-title');
+    const priorityInput = document.getElementById('task-priority');
     const title = titleInput.value.trim();
+    const priority = priorityInput && priorityInput.value
+        ? priorityInput.value
+        : 'Medium';
 
     if (!title) return;
 
     await fetch('/api/tasks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title })
+        body: JSON.stringify({ title, priority })
     });
 
     titleInput.value = '';
+    if (priorityInput) priorityInput.value = 'Medium';
     fetchTasks();
 }
 
